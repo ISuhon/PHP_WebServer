@@ -1,38 +1,31 @@
 <?php
 
-// Підключаємо автозавантаження Composer
 require 'vendor/autoload.php';
 
 use GuzzleHttp\Client;
 
-// Створюємо новий клієнт Guzzle
 $client = new Client();
 
-// Отримуємо дані з зовнішнього API
 $response = $client->request('GET', 'https://jsonplaceholder.typicode.com/posts');
 
-// Перетворюємо відповідь у формат JSON
 $data = json_decode($response->getBody(), true);
 
-// Фільтруємо дані за певною умовою (наприклад, ID більше 50)
 $filteredData = array_filter($data, function($post) {
     return $post['id'] % 2 == 0 || $post['userId'] < 8;
 });
 
-// Перевіряємо, чи потрібно відсортувати в зворотному порядку
 $isDescending = isset($_GET['sort']) && $_GET['sort'] === 'desc';
 
 if ($isDescending) {
     usort($filteredData, function($a, $b) {
-        return strcmp($b['title'], $a['title']); // Сортуємо за спаданням
+        return strcmp($b['title'], $a['title']); 
     });
 } else {
     usort($filteredData, function($a, $b) {
-        return strcmp($a['title'], $b['title']); // Сортуємо за зростанням
+        return strcmp($a['title'], $b['title']); 
     });
 }
 
-// Виводимо дані в HTML-форматі
 ?>
 <!DOCTYPE html>
 <html lang="en">
