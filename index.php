@@ -10,8 +10,14 @@ $response = $client->request('GET', 'https://jsonplaceholder.typicode.com/posts'
 
 $data = json_decode($response->getBody(), true);
 
-$filteredData = array_filter($data, function($post) {
-    return $post['id'] % 2 == 0 || $post['userId'] < 8;
+$minUserId = min(array_column($data, 'userId'));
+
+$maxUserId = max(array_column($data, 'userId'));
+
+$userIdLimit = isset($_GET['userIdLimit']) ? (int)$_GET['userIdLimit'] : $maxUserId;
+
+$filteredData = array_filter($data, function($post) use ($userIdLimit) {
+    return $post['id'] % 2 == 0 || $post['userId'] < $userIdLimit;
 });
 
 $isDescending = isset($_GET['sort']) && $_GET['sort'] === 'desc';
@@ -91,8 +97,10 @@ if ($isDescending) {
 <body>
     <h1>Posts from API</h1>
 
-    <!-- Форма для кнопки фільтрації -->
     <form method="get">
+        <label for="userIdLimit">Filter by userId less than:</label>
+        <input type="number" id="userIdLimit" name="userIdLimit" value="<?= htmlspecialchars($userIdLimit) ?>" min="<?= $minUserId ?>" max="<?= $maxUserId ?>">
+
         <button id="sort-btn" type="submit" name="sort" value="<?= $isDescending ? 'asc' : 'desc' ?>">
             Sort in <?= $isDescending ? 'Ascending' : 'Descending' ?> Order
         </button>
